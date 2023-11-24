@@ -23,13 +23,13 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tessera
 wanted_seats_count = 2
 
 # 인터파크 아이디 생년월일
-birth_date = "960922"
+birth_date = ""
 
 # 결제할 카카오톡 정보
 # 핸드폰 번호
-kakao_phone_number = "01048425162"
+kakao_phone_number = ""
 # 생년월일
-kakao_birth_date = "941122"
+kakao_birth_date = ""
 
 driver = webdriver.Chrome()
 def chapcha():    
