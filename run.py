@@ -23,76 +23,83 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tessera
 wanted_seats_count = 2
 
 # 인터파크 아이디 생년월일
-birth_date = ""
+birth_date = "960922"
 
 # 결제할 카카오톡 정보
 # 핸드폰 번호
-kakao_phone_number = ""
+kakao_phone_number = "01048425162"
 # 생년월일
-kakao_birth_date = ""
+kakao_birth_date = "941122"
 
 driver = webdriver.Chrome()
 def chapcha():    
     try:
         while True:
-            WebDriverWait(driver, 0.5).until(EC.presence_of_element_located((By.ID, "imgCaptcha")))
+            WebDriverWait(driver, 0.2).until(EC.presence_of_element_located((By.ID, "imgCaptcha")))
             capcha_layer = driver.find_element(By.ID, 'imgCaptcha')
             if capcha_layer.is_displayed():
-                byte_data=capcha_layer.screenshot_as_png
-                np_data = np.frombuffer(byte_data, dtype=np.uint8)
-                image = cv2.imdecode(np_data, cv2.IMREAD_COLOR)
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                image = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 91, 1)
-                kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-                image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel, iterations=1)
+                try:
+                    byte_data=capcha_layer.screenshot_as_png
+                    np_data = np.frombuffer(byte_data, dtype=np.uint8)
+                    image = cv2.imdecode(np_data, cv2.IMREAD_COLOR)
+                    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+                    image = cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 91, 1)
+                    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+                    image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel, iterations=1)
 
-                cnts = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                cnts = cnts[0] if len(cnts) == 2 else cnts[1]
-                for c in cnts:
-                    area = cv2.contourArea(c)
-                    if area < 50:
-                        cv2.drawContours(image, [c], -1, (0, 0, 0), -1)
-                kernel2 = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-                image = cv2.filter2D(image, -1, kernel2)
-                result = 255 - image
-                captcha_text = pytesseract.image_to_string(result)
-                driver.switch_to.default_content()
-                driver.switch_to.frame(iframe_seat)
-                # 'validationTxt' 클래스를 가진 요소를 찾습니다
-                WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.CLASS_NAME, "validationTxt")))
-                validation_txt_element = driver.find_element(By.CLASS_NAME, "validationTxt")
-                if captcha_text[-1]=='\n':
-                    captcha_text=captcha_text[:-1]
-                if len(captcha_text)!=6:
-                    WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.CLASS_NAME, "refreshBtn")))
-                    element = driver.find_element(By.CLASS_NAME, "refreshBtn")
-                    element.click()
-                    time.sleep(1)
-                    continue
-                else:
-                    # 요소에 클릭을 수행합니다.
-                    validation_txt_element.click()
-                    WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.ID, "txtCaptcha")))
-                    captcha_input = driver.find_element(By.ID, "txtCaptcha")
-                    captcha_input.send_keys(captcha_text)
-                    print(captcha_text)
-                    element_to_click = driver.find_element(By.XPATH, "//*[@id='divRecaptcha']/div[1]/div[4]/a[2]")
-
-                    # 요소 클릭
-                    element_to_click.click()
-                    time.sleep(1)
-                    if capcha_layer.is_displayed() == 0:
-                        # print('클리어')
-                        break
-                    else:
+                    cnts = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                    cnts = cnts[0] if len(cnts) == 2 else cnts[1]
+                    for c in cnts:
+                        area = cv2.contourArea(c)
+                        if area < 50:
+                            cv2.drawContours(image, [c], -1, (0, 0, 0), -1)
+                    kernel2 = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+                    image = cv2.filter2D(image, -1, kernel2)
+                    result = 255 - image
+                    captcha_text = pytesseract.image_to_string(result)
+                    driver.switch_to.default_content()
+                    driver.switch_to.frame(iframe_seat)
+                    # 'validationTxt' 클래스를 가진 요소를 찾습니다
+                    WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.CLASS_NAME, "validationTxt")))
+                    validation_txt_element = driver.find_element(By.CLASS_NAME, "validationTxt")
+                    if captcha_text[-1]=='\n':
+                        captcha_text=captcha_text[:-1]
+                    if len(captcha_text)!=6:
                         WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.CLASS_NAME, "refreshBtn")))
                         element = driver.find_element(By.CLASS_NAME, "refreshBtn")
                         element.click()
+                        time.sleep(1)
                         continue
+                    else:
+                        # 요소에 클릭을 수행합니다.
+                        validation_txt_element.click()
+                        WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.ID, "txtCaptcha")))
+                        captcha_input = driver.find_element(By.ID, "txtCaptcha")
+                        captcha_input.send_keys(captcha_text)
+                        print(captcha_text)
+                        element_to_click = driver.find_element(By.XPATH, "//*[@id='divRecaptcha']/div[1]/div[4]/a[2]")
+
+                        # 요소 클릭
+                        element_to_click.click()
+                        time.sleep(1)
+                    
+                        if capcha_layer.is_displayed() == 0:
+                            # print('클리어')
+                            break
+                        else:
+                            WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.CLASS_NAME, "refreshBtn")))
+                            element = driver.find_element(By.CLASS_NAME, "refreshBtn")
+                            element.click()
+                            continue
+                except Exception as e :
+                        WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.CLASS_NAME, "refreshBtn")))
+                        element = driver.find_element(By.CLASS_NAME, "refreshBtn")
+                        element.click()
+                        continue                        
             else:
                break 
     except TimeoutException:
-        print("Captcha 요소가 없어서 계속 진행")
+        pass
 
 
 
@@ -100,77 +107,82 @@ def puzzle():
     
     try:
         while True:
-            WebDriverWait(driver,0.5).until(EC.presence_of_element_located((By.CSS_SELECTOR, "canvas")))
+            WebDriverWait(driver,0.2).until(EC.presence_of_element_located((By.CSS_SELECTOR, "canvas")))
             canvas_element = driver.find_element(By.CSS_SELECTOR, 'canvas')
             if canvas_element.is_displayed():
-                img_data = driver.execute_script("return arguments[0].toDataURL('image/png').substring(21);", canvas_element)
-                og_image=cv2.imread("moda.jpg")
-                # resized_image = cv2.resize(og_image, (capch_image_w, capch_image_h))
-                import base64
-                from PIL import Image
-                from io import BytesIO 
-                img = Image.open(BytesIO(base64.b64decode(img_data)))
-                capcha_img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-                og_image_resized = cv2.resize(og_image, (capcha_img.shape[1], capcha_img.shape[0]))
-                # 그레이스케일로 변환
-                original_gray = cv2.cvtColor(og_image_resized, cv2.COLOR_BGR2GRAY)
-                blurred_gray = cv2.cvtColor(capcha_img, cv2.COLOR_BGR2GRAY)
+                try:
+                    img_data = driver.execute_script("return arguments[0].toDataURL('image/png').substring(21);", canvas_element)
+                    og_image=cv2.imread("moda.jpg")
+                    # resized_image = cv2.resize(og_image, (capch_image_w, capch_image_h))
+                    import base64
+                    from PIL import Image
+                    from io import BytesIO 
+                    img = Image.open(BytesIO(base64.b64decode(img_data)))
+                    capcha_img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+                    og_image_resized = cv2.resize(og_image, (capcha_img.shape[1], capcha_img.shape[0]))
+                    # 그레이스케일로 변환
+                    original_gray = cv2.cvtColor(og_image_resized, cv2.COLOR_BGR2GRAY)
+                    blurred_gray = cv2.cvtColor(capcha_img, cv2.COLOR_BGR2GRAY)
 
-                # 이미지 간 차이 계산
-                diff = cv2.absdiff(original_gray, blurred_gray)
-                _, thresh = cv2.threshold(diff, 100, 255, cv2.THRESH_BINARY)
+                    # 이미지 간 차이 계산
+                    diff = cv2.absdiff(original_gray, blurred_gray)
+                    _, thresh = cv2.threshold(diff, 100, 255, cv2.THRESH_BINARY)
 
-                # 차이가 있는 영역의 좌표 찾기
-                contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                min_x, min_y = capcha_img.shape[1], capcha_img.shape[0] # 초기 최소값 설정
-                max_x, max_y = 0 , 0
-                for contour in contours:
-                    x, y, w, h = cv2.boundingRect(contour)
-                    # x_min, y_min 좌표 출력
-                    if w>20 and h>20:
-                    # 최소 x, y 좌표 업데이트
-                        if x < min_x:
-                            min_x = x
-                        if y < min_y:
-                            min_y = y
-                        if x > max_x:
-                            max_x=x 
-                        if y > max_y:
-                            max_y= y 
-                    # 가장 작은 x_min, y_min 좌표 출력
-                        # print("x_min:", x, "y_min:", y,"w",w,"h",h)
-                        # 선택적: 차이 영역 시각화
-                        cv2.rectangle(og_image_resized, (x, y), (x + w, y + h), (0, 255, 0), -1)
-                # cv2.imwrite('Difference.jpg', og_image_resized)
-                # print("가장 작은 x_min:", min_x, "가장 작은 y_min:", min_y)
-                WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.XPATH, '//*[@id="captchSlider"]/div/div[2]/div')))
-                slider_btn = driver.find_element(By.XPATH, '//*[@id="captchSlider"]/div/div[2]/div')
-                from selenium.webdriver.common.action_chains import ActionChains
-                actions = ActionChains(driver)
+                    # 차이가 있는 영역의 좌표 찾기
+                    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                    min_x, min_y = capcha_img.shape[1], capcha_img.shape[0] # 초기 최소값 설정
+                    max_x, max_y = 0 , 0
+                    for contour in contours:
+                        x, y, w, h = cv2.boundingRect(contour)
+                        # x_min, y_min 좌표 출력
+                        if w>20 and h>20:
+                        # 최소 x, y 좌표 업데이트
+                            if x < min_x:
+                                min_x = x
+                            if y < min_y:
+                                min_y = y
+                            if x > max_x:
+                                max_x=x 
+                            if y > max_y:
+                                max_y= y 
+                        # 가장 작은 x_min, y_min 좌표 출력
+                            # print("x_min:", x, "y_min:", y,"w",w,"h",h)
+                            # 선택적: 차이 영역 시각화
+                            cv2.rectangle(og_image_resized, (x, y), (x + w, y + h), (0, 255, 0), -1)
+                    # cv2.imwrite('Difference.jpg', og_image_resized)
+                    # print("가장 작은 x_min:", min_x, "가장 작은 y_min:", min_y)
+                
+                    WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.XPATH, '//*[@id="captchSlider"]/div/div[2]/div')))
+                    slider_btn = driver.find_element(By.XPATH, '//*[@id="captchSlider"]/div/div[2]/div')
+                    from selenium.webdriver.common.action_chains import ActionChains
+                    actions = ActionChains(driver)
 
-                # 슬라이더 버튼을 드래그하는 동작을 수행합니다.
-                # 예를 들어, 오른쪽으로 100 픽셀 이동한다고 가정합니다.
-                offset = max_x+14.3  # 원하는 만큼의 픽셀값으로 변경
-                steps = 10
-                actions.click_and_hold(slider_btn)
-                # actions.click_and_hold(slider_btn).move_by_offset(offset, 0).release().perform()
-                for _ in range(steps):
-                    actions.move_by_offset(int(offset / steps), random.uniform(-3, 3)).perform()
-                    actions = ActionChains(driver)  # ActionChains 재설정
+                    # 슬라이더 버튼을 드래그하는 동작을 수행합니다.
+                    # 예를 들어, 오른쪽으로 100 픽셀 이동한다고 가정합니다.
+                    offset = max_x+14.3  # 원하는 만큼의 픽셀값으로 변경
+                    steps = 10
+                    actions.click_and_hold(slider_btn)
+                    # actions.click_and_hold(slider_btn).move_by_offset(offset, 0).release().perform()
+               
+                    for _ in range(steps):
+                        actions.move_by_offset(int(offset / steps), random.uniform(-3, 3)).perform()
+                        actions = ActionChains(driver)  # ActionChains 재설정
 
-                # 마우스 버튼을 놓습니다.
-                actions.release().perform()
-                time.sleep(1)
-                if not canvas_element.is_displayed():
-                    # print("클리어")
-                    break
-                else:
-                    print("다시")
+                    # 마우스 버튼을 놓습니다.
+                    actions.release().perform()
+                    time.sleep(1)
+                    if not canvas_element.is_displayed():
+                        print("퍼즐 클리어")
+                        break
+                    else:
+                        print("퍼즐 다시")
+                except Exception as e :
+                    continue
             else:
                 break
             
     except TimeoutException:
-        print("Canvas 요소가 없어서 계속 진행")
+        pass
 def alert_check():
     global driver
     # 경고창이 있는지 확인
@@ -255,23 +267,25 @@ print("dd")
 
 
 
-
+datelist=["20231231","20231230"]
 
 ## 좌석 선택 창
 # 새 창 전환하기
 # 새 창이나 탭이 열릴 때까지 기다림
-WebDriverWait(driver, wait_sec).until(lambda d: len(d.window_handles) > 1)
+WebDriverWait(driver, 30).until(lambda d: len(d.window_handles) > 1)
 window_handles = driver.window_handles
 driver.switch_to.window(window_handles[1])
 
 # find_seat = False
 capcha_check=True
 while True:
+    datelist[int(round(random.uniform(0, 1)))]
+    data_str=datelist[int(round(random.uniform(0, 1)))]
     # iframe으로 전환
     # 나올 때까지 기다리기
     # # 새 창이나 탭의 로딩을 기다림
     # WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-    WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.ID, "ifrmSeat")))
+    WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, "ifrmSeat")))
     iframe_seat = driver.find_element(By.ID, "ifrmSeat")
     driver.switch_to.frame(iframe_seat)
 
@@ -281,10 +295,11 @@ while True:
     chapcha()
     puzzle()
     
-    WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.ID, "PlayDate")))
-    driver.execute_script("document.getElementById('PlayDate').value = '20231230';")
+    WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, "PlayDate")))
+    # driver.execute_script("document.getElementById('PlayDate').value = '20231231';")
+    driver.execute_script("document.getElementById('PlayDate').value = "+data_str+";")
     driver.execute_script("document.getElementById('PlaySeq').value = '001';")
-    WebDriverWait(driver, 60).until(
+    WebDriverWait(driver, 80).until(
         EC.presence_of_all_elements_located((By.XPATH, "//tr[@id='GradeRow']/td/div/span[@class='select']"))
     )
 
@@ -294,9 +309,9 @@ while True:
     for seat_grade in seat_grades:
         text = seat_grade.text
         seat_count = int(re.search(r'\d+', text).group())  # 숫자 추출
-        print(f"{text} - {seat_count}석  남음")
+        # print(f"{text} - {seat_count}석  남음")
         if seat_count >= wanted_seats_count:
-            print(f"{text} - {wanted_seats_count}석 이상 남음")
+            # print(f"{text} - {wanted_seats_count}석 이상 남음")
             is_have_seat=True
             seat_grade.click()
             break
@@ -310,7 +325,7 @@ while True:
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".box ul li"))
     )
     area_list_items = driver.find_elements(By.CSS_SELECTOR, ".box ul li")
-
+    is_have_seat=False
     # 각 리스트 항목의 텍스트에서 좌석 수를 추출하고, 2석 이상인 경우 링크를 클릭합니다.
     for item in area_list_items:
         text = item.text
@@ -322,6 +337,12 @@ while True:
                 link = item.find_element(By.TAG_NAME, "a")
                 link.click()
                 break  # 첫 번째로 발견된 2석 이상인 영역을 클릭한 후 반복문 탈출  #divSeatBox
+    if not is_have_seat:
+        driver.refresh()
+        # time.sleep(1)
+        # random_sleep_time = random.uniform(0.1, 0.3)
+        # time.sleep(random_sleep_time)        
+        continue  
     WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, "ifrmSeatDetail"))
     )
@@ -335,6 +356,7 @@ while True:
 
     # 'seats' 요소들을 처리하는 로직을 여기에 추가합니다.
     # 예를 들어, 각 요소의 텍스트를 출력할 수 있습니다.
+    is_have_seat=False
     for i,seat in enumerate(seats):
         if i>0:
             if seats[i].location['y']==seats[i-1].location['y'] and seats[i].location['x']-seats[i-1].location['x']>10 and seats[i].location['x']-seats[i-1].location['x']<15:
