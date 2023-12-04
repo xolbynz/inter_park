@@ -23,13 +23,13 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tessera
 wanted_seats_count = 2
 
 # 인터파크 아이디 생년월일
-birth_date = "960922"
+birth_date = ""
 
 # 결제할 카카오톡 정보
 # 핸드폰 번호
-kakao_phone_number = "01048425162"
+kakao_phone_number = ""
 # 생년월일
-kakao_birth_date = "941122"
+kakao_birth_date = ""
 
 driver = webdriver.Chrome()
 def chapcha():    
@@ -294,7 +294,7 @@ while True:
     
     chapcha()
     puzzle()
-    
+
     WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, "PlayDate")))
     # driver.execute_script("document.getElementById('PlayDate').value = '20231231';")
     driver.execute_script("document.getElementById('PlayDate').value = "+data_str+";")
@@ -302,165 +302,90 @@ while True:
     WebDriverWait(driver, 80).until(
         EC.presence_of_all_elements_located((By.XPATH, "//tr[@id='GradeRow']/td/div/span[@class='select']"))
     )
-
-    # 요소들이 로드되었으므로 이제 찾을 수 있습니다.
-    seat_grades = driver.find_elements(By.XPATH, "//tr[@id='GradeRow']/td/div/span[@class='select']")
-    is_have_seat=False
-    for seat_grade in seat_grades:
-        text = seat_grade.text
-        seat_count = int(re.search(r'\d+', text).group())  # 숫자 추출
-        # print(f"{text} - {seat_count}석  남음")
-        if seat_count >= wanted_seats_count:
-            # print(f"{text} - {wanted_seats_count}석 이상 남음")
-            is_have_seat=True
-            seat_grade.click()
-            break
-    if not is_have_seat:
-        driver.refresh()
-        # time.sleep(1)
-        # random_sleep_time = random.uniform(0.01, 0.3)
-        # time.sleep(random_sleep_time)        
-        continue    
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".box ul li"))
-    )
-    area_list_items = driver.find_elements(By.CSS_SELECTOR, ".box ul li")
-    is_have_seat=False
-    # 각 리스트 항목의 텍스트에서 좌석 수를 추출하고, 2석 이상인 경우 링크를 클릭합니다.
-    for item in area_list_items:
-        text = item.text
-        match = re.search(r'(\d+)석', text)
-        if match:
-            seat_count = int(match.group(1))  # 숫자 추출
+    try:
+        # 요소들이 로드되었으므로 이제 찾을 수 있습니다.
+        seat_grades = driver.find_elements(By.XPATH, "//tr[@id='GradeRow']/td/div/span[@class='select']")
+        is_have_seat=False
+        for seat_grade in seat_grades:
+            text = seat_grade.text
+            seat_count = int(re.search(r'\d+', text).group())  # 숫자 추출
+            # print(f"{text} - {seat_count}석  남음")
             if seat_count >= wanted_seats_count:
-                print(f"{text} - 2석 이상 남음, 클릭합니다.")
-                link = item.find_element(By.TAG_NAME, "a")
-                link.click()
-                break  # 첫 번째로 발견된 2석 이상인 영역을 클릭한 후 반복문 탈출  #divSeatBox
-    if not is_have_seat:
-        driver.refresh()
-        # time.sleep(1)
-        # random_sleep_time = random.uniform(0.1, 0.3)
-        # time.sleep(random_sleep_time)        
-        continue  
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "ifrmSeatDetail"))
-    )
-
-    # 'iframe' 요소로 전환합니다.
-    driver.switch_to.frame("ifrmSeatDetail")
-
-    # 이제 'iframe' 내부의 요소들에 접근할 수 있습니다.
-    # 예를 들어, 'Seats' id를 가진 요소를 찾습니다.
-    seats = driver.find_elements(By.ID, "Seats")
-
-    # 'seats' 요소들을 처리하는 로직을 여기에 추가합니다.
-    # 예를 들어, 각 요소의 텍스트를 출력할 수 있습니다.
-    is_have_seat=False
-    for i,seat in enumerate(seats):
-        if i>0:
-            if seats[i].location['y']==seats[i-1].location['y'] and seats[i].location['x']-seats[i-1].location['x']>10 and seats[i].location['x']-seats[i-1].location['x']<15:
-                print(seats[i].get_attribute("title"))
-                print(seats[i-1].get_attribute("title"))
-                seats[i-1].click()
-                seats[i].click()
-                print("클릭클릭")
+                # print(f"{text} - {wanted_seats_count}석 이상 남음")
                 is_have_seat=True
+                seat_grade.click()
                 break
-    if not is_have_seat:
+        if not is_have_seat:
+            driver.refresh()
+            # time.sleep(1)
+            # random_sleep_time = random.uniform(0.01, 0.3)
+            # time.sleep(random_sleep_time)        
+            continue    
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".box ul li"))
+        )
+        area_list_items = driver.find_elements(By.CSS_SELECTOR, ".box ul li")
+        is_have_seat=False
+        # 각 리스트 항목의 텍스트에서 좌석 수를 추출하고, 2석 이상인 경우 링크를 클릭합니다.
+        for item in area_list_items:
+            text = item.text
+            match = re.search(r'(\d+)석', text)
+            if match:
+                seat_count = int(match.group(1))  # 숫자 추출
+                if seat_count >= wanted_seats_count:
+                    print(f"{text} - 2석 이상 남음, 클릭합니다.")
+                    link = item.find_element(By.TAG_NAME, "a")
+                    link.click()
+                    break  # 첫 번째로 발견된 2석 이상인 영역을 클릭한 후 반복문 탈출  #divSeatBox
+        if not is_have_seat:
+            driver.refresh()
+            # time.sleep(1)
+            # random_sleep_time = random.uniform(0.1, 0.3)
+            # time.sleep(random_sleep_time)        
+            continue  
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "ifrmSeatDetail"))
+        )
+
+        # 'iframe' 요소로 전환합니다.
+        driver.switch_to.frame("ifrmSeatDetail")
+
+        # 이제 'iframe' 내부의 요소들에 접근할 수 있습니다.
+        # 예를 들어, 'Seats' id를 가진 요소를 찾습니다.
+        seats = driver.find_elements(By.ID, "Seats")
+
+        # 'seats' 요소들을 처리하는 로직을 여기에 추가합니다.
+        # 예를 들어, 각 요소의 텍스트를 출력할 수 있습니다.
+        is_have_seat=False
+        for i,seat in enumerate(seats):
+            if i>0:
+                if seats[i].location['y']==seats[i-1].location['y'] and seats[i].location['x']-seats[i-1].location['x']>10 and seats[i].location['x']-seats[i-1].location['x']<15:
+                    print(seats[i].get_attribute("title"))
+                    print(seats[i-1].get_attribute("title"))
+                    seats[i-1].click()
+                    seats[i].click()
+                    print("클릭클릭")
+                    is_have_seat=True
+                    break
+        if not is_have_seat:
+            driver.refresh()
+            # time.sleep(1)
+            # random_sleep_time = random.uniform(0.1, 0.3)
+            # time.sleep(random_sleep_time)        
+            continue   
+        driver.switch_to.default_content()
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "ifrmSeat"))
+        )
+        driver.switch_to.frame("ifrmSeat")
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "NextStepImage"))
+        )
+        NextStepImage = driver.find_elements(By.ID, "NextStepImage")
+        NextStepImage[0].click()    
+    except Exception as e:
         driver.refresh()
-        # time.sleep(1)
-        # random_sleep_time = random.uniform(0.1, 0.3)
-        # time.sleep(random_sleep_time)        
-        continue   
-    driver.switch_to.default_content()
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "ifrmSeat"))
-    )
-    driver.switch_to.frame("ifrmSeat")
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "NextStepImage"))
-    )
-    NextStepImage = driver.find_elements(By.ID, "NextStepImage")
-    NextStepImage[0].click()    
-#     # 'display: none;'이 포함되어 있는지 확인<span class="SeatN" id="Seats" name="Seats" style="background-color:#7C68EE;" title="[SR석] FLOOR-타구역 8열-8" onclick="SelectSeat(this,'1','FLOOR','타구역 8열','8','012','SR석')" value="N" seatinfo="" rowidx="0" colidx="0" limitcnt="0"><!----></span>
-#     if "display: none;" not in style_attribute:
-#         # print("capcha_layer는 표시되어 있습니다.")    
-#         WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.CLASS_NAME, "capchaBtns")))
-#         fncheckbtn = driver.find_element(By.CLASS_NAME, 'capchaBtns')
-
-#         # JavaScript를 사용하여 onclick 이벤트 변경
-#         script = """
-#         var element = document.querySelector('.capchaBtns a');
-#         if (element) {
-#             element.setAttribute('onclick', 'fnCheckOK()');
-#         }
-#         """
-#         driver.execute_script(script)
-
-#         fncheckbtn.click()
-
-#     # 남은 자리 확인.
-#     # .groundList 클래스 아래의 .list 클래스를 가진 요소 찾기
-#     WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".groundList .list")))
-#     # WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-#     # seat_list_element = driver.find_element(By.CSS_SELECTOR, ".groundList .list")
-
-#     # 0이 아닌 곳이 있나 확인.
-#     # JavaScript를 사용하여 rc 속성이 0이 아닌 <a> 요소 찾기
-#     available_seats_script = """
-#     var links = document.querySelectorAll('.groundList .list a');
-#     var availableSeats = [];
-#     for (var i = 0; i < links.length; i++) {
-#         if (links[i].getAttribute('rc') != '0') {
-#             availableSeats.push(links[i]);
-#         }
-#     }
-#     return availableSeats;
-#     """
-#     available_seats = driver.execute_script(available_seats_script)
-
-#     # available_seats 배열에는 rc 속성이 0이 아닌 <a> 요소들이 포함되어 있음
-#     # 예를 들어, 첫 번째 요소에 대한 정보를 출력
-#     if len(available_seats) > 0:
-#         # 현재 날짜와 시간을 가져오기
-#         current_datetime = datetime.now()
-#         # 문자열 형식으로 출력하기
-#         formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")        
-#         print(f"좌석 발견!! {formatted_datetime}")
-#         for available_seat in available_seats:
-#             rc = available_seats[0].get_attribute('rc')
-#             seat_text = available_seats[0].find_element(By.CSS_SELECTOR, 'span.red').text
-#             print(f"  rc={rc}, {seat_text}")
-
-#             # 숫자만 추출하는 정규 표현식 패턴
-#             pattern = r'\d+'
-#             if re.search(pattern, seat_text):
-#                 num_seats = int(re.search(pattern, seat_text).group())
-#             else:
-#                 num_seats = 0
-
-#             # '2'를 포함하는 텍스트를 발견한 경우 해당 좌석 클릭
-#             if num_seats >= wanted_seats_count:
-#                 print("\n자동 배정 진행!")
-#                 available_seat.click()
-#                 find_seat = True
-#                 break
-#     # else:
-#     #     print("좌석 없음. 새로고침.")
-    
-#     if not find_seat:
-#         # driver.switch_to.default_content()
-#         driver.refresh()
-#         # time.sleep(1)
-#         random_sleep_time = random.uniform(0.01, 0.1)
-#         time.sleep(random_sleep_time)        
-#         continue
-    
-#     # 자리 찾음.
-#     # 자동 배정 버튼 클릭
-#     auto_assign_button = driver.find_element(By.XPATH, "//a[img[@src='//ticketimage.interpark.com/TicketImage/onestop/kbo_twoBtn_1.gif']]")
-#     auto_assign_button.click()    
+        
 
 
 #     ## 좌석 수 고르는 창
