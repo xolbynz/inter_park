@@ -1,3 +1,4 @@
 # inter_park
 
-pytesseract 설치
+
+응 난 성공했어 

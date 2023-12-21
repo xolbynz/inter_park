@@ -5,6 +5,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import NoAlertPresentException
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.chrome.options import Options
 import random
 import pytesseract
 import time
@@ -31,7 +34,11 @@ kakao_phone_number = ""
 # 생년월일
 kakao_birth_date = ""
 
-driver = webdriver.Chrome()
+options = Options()
+options.add_argument('--disable-cache')  # 캐시 비활성화
+options.add_argument('--incognito')     # 시크릿 모드에서 캐시 최소화
+
+driver = webdriver.Chrome(options=options)
 def chapcha():    
     try:
         while True:
@@ -172,10 +179,9 @@ def puzzle():
                     actions.release().perform()
                     time.sleep(1)
                     if not canvas_element.is_displayed():
-                        print("퍼즐 클리어")
                         break
                     else:
-                        print("퍼즐 다시")
+                        continue
                 except Exception as e :
                     continue
             else:
@@ -233,14 +239,14 @@ driver.get('https://tickets.interpark.com/goods/23016176') #모다
 
 
 # 'popupCloseBtn is-bottomBtn' 클래스를 가진 버튼을 찾습니다.
-close_button = WebDriverWait(driver, wait_sec).until(
+close_button = WebDriverWait(driver, 30).until(
     EC.element_to_be_clickable((By.CSS_SELECTOR, ".popupCloseBtn.is-bottomBtn"))
 )
 
 # 버튼 클릭
 close_button.click()
 # '30' 텍스트를 포함하는 `li` 요소를 찾습니다. 'disabled'나 'muted' 클래스를 가지지 않은 요소를 선택합니다.
-li_30 = WebDriverWait(driver, wait_sec).until(
+li_30 = WebDriverWait(driver, 30).until(
 # EC.element_to_be_clickable((By.XPATH, "//ul[@data-view='days']/li[text()='25' and not(contains(@class, 'disabled')) and not(contains(@class, 'muted'))]"))
 EC.element_to_be_clickable((By.XPATH, "//*[@id='productSide']/div/div[1]/div[1]/div[2]/div/div/div/div/ul[3]/li[30]"))
 )
@@ -248,7 +254,7 @@ EC.element_to_be_clickable((By.XPATH, "//*[@id='productSide']/div/div[1]/div[1]/
 # 해당 요소를 클릭합니다.
 li_30.click()
 
-button = WebDriverWait(driver, wait_sec).until(
+button = WebDriverWait(driver, 30).until(
     EC.element_to_be_clickable((By.XPATH, "//*[@id='productSide']/div/div[2]/a[1]/span"))
     # EC.element_to_be_clickable((By.XPATH, "//*[@id='productSide']/div/div[2]/a[1]"))
 )
@@ -262,7 +268,7 @@ while True:
         break            
 # 요소 클릭
 button.click()
-print("dd")
+print("자 이제 시작이야")
 
 
 
@@ -279,30 +285,49 @@ driver.switch_to.window(window_handles[1])
 # find_seat = False
 capcha_check=True
 while True:
-    datelist[int(round(random.uniform(0, 1)))]
-    data_str=datelist[int(round(random.uniform(0, 1)))]
-    # iframe으로 전환
-    # 나올 때까지 기다리기
-    # # 새 창이나 탭의 로딩을 기다림
-    # WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-    WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, "ifrmSeat")))
-    iframe_seat = driver.find_element(By.ID, "ifrmSeat")
-    driver.switch_to.frame(iframe_seat)
-
-#     # 보안문자 넘어가기
-#     # display: none; 검사
-    
-    chapcha()
-    puzzle()
-
-    WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, "PlayDate")))
-    # driver.execute_script("document.getElementById('PlayDate').value = '20231231';")
-    driver.execute_script("document.getElementById('PlayDate').value = "+data_str+";")
-    driver.execute_script("document.getElementById('PlaySeq').value = '001';")
-    WebDriverWait(driver, 80).until(
-        EC.presence_of_all_elements_located((By.XPATH, "//tr[@id='GradeRow']/td/div/span[@class='select']"))
-    )
     try:
+        # driver.delete_all_cookies()
+        datelist[int(round(random.uniform(0, 1)))]
+        data_str=datelist[int(round(random.uniform(0, 1)))]
+        # iframe으로 전환
+        # 나올 때까지 기다리기
+        # # 새 창이나 탭의 로딩을 기다림
+        # WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, "ifrmSeat")))
+        iframe_seat = driver.find_element(By.ID, "ifrmSeat")
+        driver.switch_to.frame(iframe_seat)
+
+    #     # 보안문자 넘어가기
+    #     # display: none; 검사
+        
+        chapcha()
+        puzzle()
+
+        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, "PlayDate")))
+        # driver.execute_script("document.getElementById('PlayDate').value = '20231231';")
+        # driver.execute_script("document.getElementById('PlayDate').value = "+data_str+";")
+        # time.sleep(1)
+        # driver.execute_script("document.getElementById('PlaySeq').value = '000';") 
+        # driver.execute_script("document.getElementById('PlaySeq').value = '001';")
+        element = driver.find_element(By.ID, "PlayDate")
+        select_element = Select(element)
+
+        select_element.select_by_value(data_str)   # "19시 30분"의 value 값을 지정하세요.
+        time.sleep(0.1)
+        element = driver.find_element(By.ID, "PlaySeq")
+
+        # Select 요소로 변환
+        select_element = Select(element)
+
+        # "19시 30분" 선택
+        if data_str=="20231230":
+            select_element.select_by_value("002")  # "19시 30분"의 value 값을 지정하세요.
+        else :
+            select_element.select_by_value("003")  
+        WebDriverWait(driver, 80).until(
+            EC.presence_of_all_elements_located((By.XPATH, "//tr[@id='GradeRow']/td/div/span[@class='select']"))
+        )
+   
         # 요소들이 로드되었으므로 이제 찾을 수 있습니다.
         seat_grades = driver.find_elements(By.XPATH, "//tr[@id='GradeRow']/td/div/span[@class='select']")
         is_have_seat=False
@@ -316,11 +341,14 @@ while True:
                 seat_grade.click()
                 break
         if not is_have_seat:
-            driver.refresh()
-            # time.sleep(1)
-            # random_sleep_time = random.uniform(0.01, 0.3)
-            # time.sleep(random_sleep_time)        
-            continue    
+            try:
+                driver.refresh()
+                continue
+            except Exception as e:
+                actions = ActionChains(driver)
+                actions.send_keys(Keys.F5)
+                actions.perform()
+                continue
         WebDriverWait(driver, 10).until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".box ul li"))
         )
@@ -333,9 +361,10 @@ while True:
             if match:
                 seat_count = int(match.group(1))  # 숫자 추출
                 if seat_count >= wanted_seats_count:
-                    print(f"{text} - 2석 이상 남음, 클릭합니다.")
+                    print(f"{text} - 2석 이상 남음, 클릭합니다 {data_str}")
                     link = item.find_element(By.TAG_NAME, "a")
                     link.click()
+                    is_have_seat=True
                     break  # 첫 번째로 발견된 2석 이상인 영역을 클릭한 후 반복문 탈출  #divSeatBox
         if not is_have_seat:
             driver.refresh()
@@ -343,6 +372,16 @@ while True:
             # random_sleep_time = random.uniform(0.1, 0.3)
             # time.sleep(random_sleep_time)        
             continue  
+        
+            try:
+                driver.refresh()
+
+                continue
+            except Exception as e:
+                actions = ActionChains(driver)
+                actions.send_keys(Keys.F5)
+                actions.perform()
+                continue
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.ID, "ifrmSeatDetail"))
         )
@@ -357,14 +396,16 @@ while True:
         # 'seats' 요소들을 처리하는 로직을 여기에 추가합니다.
         # 예를 들어, 각 요소의 텍스트를 출력할 수 있습니다.
         is_have_seat=False
+        if len(seats)<2:
+            print("애들 빠르다..")
         for i,seat in enumerate(seats):
             if i>0:
+                print(seats[i].get_attribute("title"))
                 if seats[i].location['y']==seats[i-1].location['y'] and seats[i].location['x']-seats[i-1].location['x']>10 and seats[i].location['x']-seats[i-1].location['x']<15:
-                    print(seats[i].get_attribute("title"))
-                    print(seats[i-1].get_attribute("title"))
+                    # print(seats[i-1].get_attribute("title"))
                     seats[i-1].click()
                     seats[i].click()
-                    print("클릭클릭")
+                    print("클릭완료)")
                     is_have_seat=True
                     break
         if not is_have_seat:
@@ -384,7 +425,12 @@ while True:
         NextStepImage = driver.find_elements(By.ID, "NextStepImage")
         NextStepImage[0].click()    
     except Exception as e:
-        driver.refresh()
+        try:
+            driver.refresh()
+            continue
+        except Exception as e:
+            driver.back()
+            continue
         
 
 
