@@ -20,8 +20,10 @@ import numpy as np
 import time
 import pytesseract
 import threading
-wait_sec = 1
+wait_sec = 10
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+puzzle_path="moda.jpg"
 # 예매할 자리 수 (최대 2매)
 wanted_seats_count = 1
 
@@ -130,7 +132,7 @@ def puzzle():
             if canvas_element.is_displayed():
                 try:
                     img_data = driver.execute_script("return arguments[0].toDataURL('image/png').substring(21);", canvas_element)
-                    og_image=cv2.imread("moda.jpg")
+                    og_image=cv2.imread(puzzle_path)
                     # resized_image = cv2.resize(og_image, (capch_image_w, capch_image_h))
                     import base64
                     from PIL import Image
@@ -239,8 +241,8 @@ def book_Delivery_check():
         return False
 
 # 로그인 페이지 열기
-# driver.get('https://tickets.interpark.com/goods/24013437?GoodsCode=24013437')
-driver.get('https://tickets.interpark.com/goods/24017510')
+driver.get('https://tickets.interpark.com/goods/24013437?GoodsCode=24013437')
+# driver.get('https://tickets.interpark.com/goods/24017510')
 # https://tickets.interpark.com/goods/24017510
 # 사용자가 직접 로그인
 # input("로그인 한 후에는 'y'를 입력하고 Enter 누르세요.")
@@ -281,7 +283,12 @@ time.sleep(5)
 
 ############################
 print("여기서 로그인 한번만 하자~~~ 브레이크 걸어")
-print("여기서 로그인 한번만 하자~~~ 브레이크 걸어")
+print("")
+print("")
+print("")
+print("")
+print("")
+####################################
 try:
     # 버튼 찾기 (클래스를 기반으로 요소 찾기)
     button = driver.find_element(By.CSS_SELECTOR, 'a.sideBtn.is-primary[data-check="false"]')
@@ -302,8 +309,8 @@ window_handles = driver.window_handles
 driver.switch_to.window(window_handles[1])
 
 
-# datelist=['20250419','20250418']
-datelist=['20250125','20250126']
+datelist=['20250419','20250418']
+# datelist=['20250125','20250126']
 # find_seat = False
 capcha_check=True
 while True:
@@ -355,8 +362,8 @@ while True:
         is_have_seat=False
         for seat_grade in seat_grades:
             text = seat_grade.text
-            # if text == "스탠딩석":
-            if text == "지정석":
+            if text == "스탠딩석":
+            # if text == "지정석":
                 # "스탠딩석" 요소 클릭
                 seat_grade.click()
                 print(f"클릭한 요소: {seat_grade.text}")
@@ -369,7 +376,7 @@ while True:
                 for link in links:
                     print(f"클릭할 링크: {link.text}")
                     driver.execute_script("arguments[0].click();", link)  # JavaScript로 클릭
-                    time.sleep(1)  # 각 클릭 간에 대기 시간 추가 (필요 시 조정)
+                    # time.sleep(1)  # 각 클릭 간에 대기 시간 추가 (필요 시 조정)
                     # `ifrmSeatDetail`로 전환
                     iframe = WebDriverWait(driver, 10).until(
                         EC.presence_of_element_located((By.ID, "ifrmSeatDetail"))
@@ -386,10 +393,11 @@ while True:
                     for index, seat in enumerate(seat_elements, start=1):
                         class_name = seat.get_attribute("class")
                         if "SeatR" in class_name:
-                            print(f"Seat {index}: SeatR - 빈 좌석")
+                            # print(f"Seat {index}: SeatR - 빈 좌석")
+                            pass
                         elif "SeatN" in class_name:
                             title = seat.get_attribute("title")  # title 속성 확인
-                            print(f"Seat {index}: SeatN - 예약 가능 좌석, 정보: {title}")
+                            # print(f"Seat {index}: SeatN - 예약 가능 좌석, 정보: {title}")
                             try:
                                 seat.click()  # 좌석 클릭
                                 print(f"SeatN {index} 클릭 성공")
@@ -405,7 +413,7 @@ while True:
                             except Exception as e:
                                 print(f"좌석 클릭 또는 버튼 클릭 실패: {e}")
                         else:
-                            print(f"Seat {index}: 알 수 없는 클래스 - {class_name}")
+                            pass
                     if not seat_found:
                         print("SeatN 요소가 없습니다. 다시 시도합니다.")
                         # driver.refresh()
