@@ -23,7 +23,7 @@ import threading
 wait_sec = 10
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-puzzle_path="moda.jpg"
+puzzle_path="cp.PNG"
 # 예매할 자리 수 (최대 2매)
 wanted_seats_count = 1
 
@@ -180,6 +180,7 @@ def puzzle():
                     # 슬라이더 버튼을 드래그하는 동작을 수행합니다.
                     # 예를 들어, 오른쪽으로 100 픽셀 이동한다고 가정합니다.
                     offset = max_x+14.3  # 원하는 만큼의 픽셀값으로 변경
+                    #################################################################################여기는 계속 디버그로 수정
                     steps = 10
                     actions.click_and_hold(slider_btn)
                     # actions.click_and_hold(slider_btn).move_by_offset(offset, 0).release().perform()
@@ -376,7 +377,7 @@ while True:
                 for link in links:
                     print(f"클릭할 링크: {link.text}")
                     driver.execute_script("arguments[0].click();", link)  # JavaScript로 클릭
-                    # time.sleep(1)  # 각 클릭 간에 대기 시간 추가 (필요 시 조정)
+                    time.sleep(0.5)  # 각 클릭 간에 대기 시간 추가 (필요 시 조정)
                     # `ifrmSeatDetail`로 전환
                     iframe = WebDriverWait(driver, 10).until(
                         EC.presence_of_element_located((By.ID, "ifrmSeatDetail"))
@@ -385,40 +386,66 @@ while True:
 
                     # `divSeatBox` 내의 `SeatR` 클래스 요소들 찾기
                     # `divSeatBox` 내 모든 SeatN 요소 찾기
-                    seat_elements = WebDriverWait(driver, 10).until(
-                        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#divSeatBox span"))
-                    )
                     seat_found=False
-                    # SeatR과 SeatN 구분
-                    for index, seat in enumerate(seat_elements, start=1):
-                        class_name = seat.get_attribute("class")
-                        if "SeatR" in class_name:
-                            # print(f"Seat {index}: SeatR - 빈 좌석")
-                            pass
-                        elif "SeatN" in class_name:
-                            title = seat.get_attribute("title")  # title 속성 확인
-                            # print(f"Seat {index}: SeatN - 예약 가능 좌석, 정보: {title}")
-                            try:
-                                seat.click()  # 좌석 클릭
-                                print(f"SeatN {index} 클릭 성공")
-                                # 좌석선택완료 버튼 클릭
-                                driver.switch_to.parent_frame()
-                                confirm_button = WebDriverWait(driver, 10).until(
-                                    EC.element_to_be_clickable((By.ID, "NextStepImage"))
-                                )
-                                confirm_button.click()
-                                print("좌석선택완료 버튼 클릭 성공")
-                                seat_found = True  # 좌석을 찾았으므로 루프 종료
-                                break
-                            except Exception as e:
-                                print(f"좌석 클릭 또는 버튼 클릭 실패: {e}")
-                        else:
-                            pass
+                    try:
+                        # SeatN 요소가 있는지 확인
+                        seat_n_element = WebDriverWait(driver, 0.2).until(
+                            EC.presence_of_element_located((By.CSS_SELECTOR, "#divSeatBox .SeatN"))
+                        )
+
+                        # SeatN 요소가 있으면 클릭
+                        title = seat_n_element.get_attribute("title")
+                        print(f"예약 가능 좌석 발견: {title}")
+                        seat_n_element.click()  # 좌석 클릭
+                        print("좌석 클릭 성공")
+                        seat_found=True
+                        # 부모 프레임으로 전환 후 확인 버튼 클릭
+                        driver.switch_to.parent_frame()
+                        confirm_button = WebDriverWait(driver, 1).until(
+                            EC.element_to_be_clickable((By.ID, "NextStepImage"))
+                        )
+                        confirm_button.click()
+                        print("좌석선택완료 버튼 클릭 성공")
+
+                    except TimeoutException:
+                        print("SeatN 요소를 찾을 수 없습니다. 빈 좌석이 없거나 예약 가능한 좌석이 없습니다.")
+                    except Exception as e:
+                        print(f"오류 발생: {e}")
+                    # #######################################################
+                    # seat_elements = WebDriverWait(driver, 10).until(
+                    #     EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#divSeatBox span"))
+                    # )
+                    # seat_found=False
+                    # # SeatR과 SeatN 구분
+                    # for index, seat in enumerate(seat_elements, start=1):
+                    #     class_name = seat.get_attribute("class")
+                    #     if "SeatR" in class_name:
+                    #         print(f"Seat {index}: SeatR - 빈 좌석")
+                    #     elif "SeatN" in class_name:
+                    #         title = seat.get_attribute("title")  # title 속성 확인
+                    #         print(f"Seat {index}: SeatN - 예약 가능 좌석, 정보: {title}")
+                    #         try:
+                    #             seat.click()  # 좌석 클릭
+                    #             print(f"SeatN {index} 클릭 성공")
+                    #             # 좌석선택완료 버튼 클릭
+                    #             driver.switch_to.parent_frame()
+                    #             confirm_button = WebDriverWait(driver, 10).until(
+                    #                 EC.element_to_be_clickable((By.ID, "NextStepImage"))
+                    #             )
+                    #             confirm_button.click()
+                    #             print("좌석선택완료 버튼 클릭 성공")
+                    #             seat_found = True  # 좌석을 찾았으므로 루프 종료
+                    #             break
+                    #         except Exception as e:
+                    #             print(f"좌석 클릭 또는 버튼 클릭 실패: {e}")
+                    #     else:
+                    #         print(f"Seat {index}: 알 수 없는 클래스 - {class_name}")
+                    # #############################################################################
                     if not seat_found:
                         print("SeatN 요소가 없습니다. 다시 시도합니다.")
                         # driver.refresh()
                         driver.switch_to.parent_frame()
-                        time.sleep(2)
+                        # time.sleep(2)
                         continue  # 다시 루프를 돌림
                     else:
                         print("넘어감~~")
@@ -570,13 +597,18 @@ while True:
                         # <button class="button-request btn_payask on">결제요청</button>
                         # 결제요청 클릭
                         # "결제요청" 버튼을 대기하고 클릭
+                        time.sleep(15)
                         pay_request_btn = WebDriverWait(driver, wait_sec).until(
                             EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'kp-m-button') and contains(., '결제요청')]"))
                         )
+                        time.sleep(3)
                         pay_request_btn.click()
                         print("결제요청 버튼 클릭 성공")
-                    driver.refresh()
-                    time.sleep(2)
+                        time.sleep(1000)
+            else:
+                print("스탠딩만 할거지??")
+        driver.refresh()
+        time.sleep(2)
     except Exception as e: 
         print(e)
         driver.refresh()
