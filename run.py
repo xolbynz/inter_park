@@ -27,14 +27,16 @@ puzzle_path="cp.PNG"
 # 예매할 자리 수 (최대 2매)
 wanted_seats_count = 1
 
-# 인터파크 아이디 생년월일
-birth_date = ""
 
+# 인터파크 아이디 생년월일
+birth_date = input("인터파크 주민번호 앞에: ") 
+your_username=input("인터파크 아이디 틀리지마: ") 
+your_password=input("인터파크 비밀번호 틀리지마: ") 
 # 결제할 카카오톡 정보
 # 핸드폰 번호
-kakao_phone_number = ""
+kakao_phone_number = input("핸드폰번호: ") 
 # 생년월일
-kakao_birth_date = ""
+kakao_birth_date = input("까까오톡 주민번호 앞에: ") 
 
 options = Options()
 options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.5993.70 Safari/537.36')
@@ -284,11 +286,21 @@ time.sleep(5)
 
 ############################
 print("여기서 로그인 한번만 하자~~~ 브레이크 걸어")
-print("")
-print("")
-print("")
-print("")
-print("")
+    # 3. 아이디 입력
+time.sleep(5)
+username_input = driver.find_element(By.NAME, "username")  # "username"은 input의 name 속성
+username_input.send_keys(your_username)  # 여기에 실제 아이디 입력
+time.sleep(1)
+# 4. 비밀번호 입력
+password_input = driver.find_element(By.NAME, "password")  # "password"는 input의 name 속성
+password_input.send_keys(your_password)  # 여기에 실제 비밀번호 입력
+time.sleep(1)
+# 5. 로그인 버튼 클릭
+login_button = driver.find_element(By.CLASS_NAME, "button_btnStyle__SEYzh")
+login_button.click()
+
+# 6. 로그인 후 대기 (필요 시)
+time.sleep(5)
 ####################################
 try:
     # 버튼 찾기 (클래스를 기반으로 요소 찾기)
