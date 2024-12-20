@@ -28,13 +28,13 @@ puzzle_path="cp.PNG"
 wanted_seats_count = 1
 
 # 인터파크 아이디 생년월일
-birth_date = ""
+birth_date = "941122"
 
 # 결제할 카카오톡 정보
 # 핸드폰 번호
-kakao_phone_number = ""
+kakao_phone_number = "01048425162"
 # 생년월일
-kakao_birth_date = ""
+kakao_birth_date = "941122"
 
 options = Options()
 options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.5993.70 Safari/537.36')
