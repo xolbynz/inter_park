@@ -23,7 +23,7 @@ import threading
 wait_sec = 10
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-puzzle_path="cp.PNG"
+puzzle_path="cp.jpg"
 # 예매할 자리 수 (최대 2매)
 wanted_seats_count = 1
 
