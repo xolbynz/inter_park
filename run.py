@@ -394,7 +394,7 @@ while True:
                 print("여기가 조건 주는거야 18,19,23")
                 #######################################
                 for link in links:
-                    if not int(link.text[:3]) in [18,19,23]:
+                    if not int(link.text[:3]) in [18,19,24]:
                         continue
                     print(f"클릭할 링크: {link.text}")
 
