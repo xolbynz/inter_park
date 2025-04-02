@@ -8,6 +8,8 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 import random
 import pytesseract
 import time
@@ -30,8 +32,8 @@ wanted_seats_count = 1
 
 # 인터파크 아이디 생년월일
 birth_date = input("인터파크 주민번호 앞에: ") 
-your_username=input("인터파크 아이디 틀리지마: ") 
-your_password=input("인터파크 비밀번호 틀리지마: ") 
+# your_username=input("인터파크 아이디 틀리지마: ") 
+# your_password=input("인터파크 비밀번호 틀리지마: ") 
 # 결제할 카카오톡 정보
 # 핸드폰 번호
 kakao_phone_number = input("핸드폰번호: ") 
@@ -39,20 +41,13 @@ kakao_phone_number = input("핸드폰번호: ")
 kakao_birth_date = input("까까오톡 주민번호 앞에: ") 
 
 options = Options()
-options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.5993.70 Safari/537.36')
-options.add_argument('--disable-blink-features=AutomationControlled')
-options.add_argument('--start-maximized')
+options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
 
-driver = webdriver.Chrome(options=options)
+service = Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(service=service, options=options)
 
-# navigator.webdriver 우회
-driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
-    'source': '''
-        Object.defineProperty(navigator, 'webdriver', {
-            get: () => undefined
-        })
-    '''
-})
+print("✅ 기존 Chrome 세션 연결 완료")
+
 
 def chapcha():    
     try:
@@ -99,7 +94,8 @@ def chapcha():
                         captcha_input = driver.find_element(By.ID, "txtCaptcha")
                         captcha_input.send_keys(captcha_text)
                         print(captcha_text)
-                        element_to_click = driver.find_element(By.XPATH, "//*[@id='divRecaptcha']/div[1]/div[4]/a[2]")
+                        # element_to_click = driver.find_element(By.XPATH, "//*[@id='divRecaptcha']/div[1]/div[4]/a[2]")
+                        element_to_click = driver.find_element(By.XPATH, "//a[@onclick='fnCheck()']")
 
                         # 요소 클릭
                         element_to_click.click()
@@ -255,32 +251,32 @@ driver.get('https://tickets.interpark.com/goods/24013437?GoodsCode=24013437')
 
 # input("준비 되면 'y'를 입력하고 Enter 누르세요.")
 
-try:
-    # 팝업이 표시될 때까지 기다림
-    popup_body = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "popupBody"))
-    )
-    print("팝업이 나타났습니다.")
+# try:
+#     # 팝업이 표시될 때까지 기다림
+#     popup_body = WebDriverWait(driver, 10).until(
+#         EC.presence_of_element_located((By.CLASS_NAME, "popupBody"))
+#     )
+#     print("팝업이 나타났습니다.")
 
-    # "하루동안 보지 않기" 링크 클릭
-    dont_show_checkbox = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CLASS_NAME, "popupCheckLabel"))
-    )
-    dont_show_checkbox.click()
-    print("하루동안 보지 않기 클릭 성공")
-except Exception as e:
-    print(f"팝업 처리 중 오류 발생: {e}")
-try:
-    # 버튼 찾기 (클래스를 기반으로 요소 찾기)
-    button = driver.find_element(By.CSS_SELECTOR, 'a.sideBtn.is-primary[data-check="false"]')
+#     # "하루동안 보지 않기" 링크 클릭
+#     dont_show_checkbox = WebDriverWait(driver, 10).until(
+#         EC.element_to_be_clickable((By.CLASS_NAME, "popupCheckLabel"))
+#     )
+#     dont_show_checkbox.click()
+#     print("하루동안 보지 않기 클릭 성공")
+# except Exception as e:
+#     print(f"팝업 처리 중 오류 발생: {e}")
+# try:
+#     # 버튼 찾기 (클래스를 기반으로 요소 찾기)
+#     button = driver.find_element(By.CSS_SELECTOR, 'a.sideBtn.is-primary[data-check="false"]')
 
-    # 마우스 이동 및 클릭 (자연스럽게 보이기 위해 사용)
-    actions = ActionChains(driver)
-    actions.move_to_element(button).pause(1).click().perform()
+#     # 마우스 이동 및 클릭 (자연스럽게 보이기 위해 사용)
+#     actions = ActionChains(driver)
+#     actions.move_to_element(button).pause(1).click().perform()
     
-    print("버튼 클릭 성공!")
-except Exception as e:
-    print("버튼 클릭 실패:", e)
+#     print("버튼 클릭 성공!")
+# except Exception as e:
+#     print("버튼 클릭 실패:", e)
 
 time.sleep(5)
 
@@ -288,19 +284,19 @@ time.sleep(5)
 print("여기서 로그인 한번만 하자~~~ 브레이크 걸어")
     # 3. 아이디 입력
 time.sleep(5)
-username_input = driver.find_element(By.NAME, "username")  # "username"은 input의 name 속성
-username_input.send_keys(your_username)  # 여기에 실제 아이디 입력
-time.sleep(1)
-# 4. 비밀번호 입력
-password_input = driver.find_element(By.NAME, "password")  # "password"는 input의 name 속성
-password_input.send_keys(your_password)  # 여기에 실제 비밀번호 입력
-time.sleep(1)
-# 5. 로그인 버튼 클릭
-login_button = driver.find_element(By.CLASS_NAME, "button_btnStyle__SEYzh")
-login_button.click()
+# username_input = driver.find_element(By.NAME, "username")  # "username"은 input의 name 속성
+# username_input.send_keys(your_username)  # 여기에 실제 아이디 입력
+# time.sleep(1)
+# # 4. 비밀번호 입력
+# password_input = driver.find_element(By.NAME, "password")  # "password"는 input의 name 속성
+# password_input.send_keys(your_password)  # 여기에 실제 비밀번호 입력
+# time.sleep(1)
+# # 5. 로그인 버튼 클릭
+# login_button = driver.find_element(By.CLASS_NAME, "button_btnStyle__SEYzh")
+# login_button.click()
 
 # 6. 로그인 후 대기 (필요 시)
-time.sleep(5)
+# time.sleep(5)
 ####################################
 try:
     # 버튼 찾기 (클래스를 기반으로 요소 찾기)
@@ -322,14 +318,15 @@ window_handles = driver.window_handles
 driver.switch_to.window(window_handles[1])
 
 
-datelist=['20250419','20250418']
+datelist=['20250419']
 # datelist=['20250125','20250126']
 # find_seat = False
 capcha_check=True
 while True:
     try:
         # driver.delete_all_cookies()
-        data_str=datelist[int(round(random.uniform(0, 1)))]
+        # data_str=datelist[int(round(random.uniform(0, 1)))]
+        data_str=datelist[0]
         # iframe으로 전환
         # 나올 때까지 기다리기
         # # 새 창이나 탭의 로딩을 기다림
@@ -360,12 +357,13 @@ while True:
         # Select 요소로 변환
         select_element = Select(element)
 
-        # "19시 30분" 선택
-        if data_str==datelist[1]:
-            select_element.select_by_value("002")  # "19시 30분"의 value 값을 지정하세요.
-        else :
-            # select_element.select_by_value("001")  
-            select_element.select_by_value("003")  
+        # # "19시 30분" 선택
+        # if data_str==datelist[1]:
+        #     select_element.select_by_value("002")  # "19시 30분"의 value 값을 지정하세요.
+        # else :
+        #     # select_element.select_by_value("001")  
+        #     select_element.select_by_value("003")  
+        select_element.select_by_value("003")  
         WebDriverWait(driver, 80).until(
             EC.presence_of_all_elements_located((By.XPATH, "//tr[@id='GradeRow']/td/div/span[@class='select']"))
         )
@@ -377,17 +375,29 @@ while True:
             text = seat_grade.text
             if text == "스탠딩석":
             # if text == "지정석":
+                actions = ActionChains(driver)
+                actions.move_to_element(seat_grade).perform()
                 # "스탠딩석" 요소 클릭
                 seat_grade.click()
                 print(f"클릭한 요소: {seat_grade.text}")
+                time.sleep(0.5)  # 자바스크립트로 DOM 변경 시작할 시간을 줌
+                # is_have_seat = True
                 # 스탠딩석 클릭 후 링크들 로드 대기
-                WebDriverWait(driver, 20).until(
-                    EC.presence_of_element_located((By.XPATH, "//td[@id='GradeDetail']//ul/li/a"))
-                )
+                # 스탠딩석 클릭 후 상세 링크들이 모두 로드될 때까지 기다리기
+                wait = WebDriverWait(driver, 10)
+                wait.until(EC.visibility_of_element_located((By.XPATH, "//td[@id='GradeDetail']//ul/li/a")))
+                wait.until(EC.element_to_be_clickable((By.XPATH, "//td[@id='GradeDetail']//ul/li/a")))
+
+                # 링크들 가져오기
                 links = driver.find_elements(By.XPATH, "//td[@id='GradeDetail']//ul/li/a")
-                
+                ######################################### 여기가 조건 주는거야
+                print("여기가 조건 주는거야 18,19,23")
+                #######################################
                 for link in links:
+                    if not int(link.text[:3]) in [18,19,23]:
+                        continue
                     print(f"클릭할 링크: {link.text}")
+
                     driver.execute_script("arguments[0].click();", link)  # JavaScript로 클릭
                     time.sleep(0.5)  # 각 클릭 간에 대기 시간 추가 (필요 시 조정)
                     # `ifrmSeatDetail`로 전환
@@ -609,6 +619,7 @@ while True:
                         # <button class="button-request btn_payask on">결제요청</button>
                         # 결제요청 클릭
                         # "결제요청" 버튼을 대기하고 클릭
+                        print(link.text)
                         time.sleep(15)
                         pay_request_btn = WebDriverWait(driver, wait_sec).until(
                             EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'kp-m-button') and contains(., '결제요청')]"))
