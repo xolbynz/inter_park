@@ -383,9 +383,10 @@ while True:
                 actions = ActionChains(driver)
                 actions.move_to_element(seat_grade).perform()
                 # "스탠딩석" 요소 클릭
+                time.sleep(0.1)  # 자바스크립트로 DOM 변경 시작할 시간을 줌
                 seat_grade.click()
                 print(f"클릭한 요소: {seat_grade.text}")
-                time.sleep(0.5)  # 자바스크립트로 DOM 변경 시작할 시간을 줌
+                time.sleep(0.1)
                 # is_have_seat = True
                 # 스탠딩석 클릭 후 링크들 로드 대기
                 # 스탠딩석 클릭 후 상세 링크들이 모두 로드될 때까지 기다리기
@@ -396,15 +397,15 @@ while True:
                 # 링크들 가져오기
                 links = driver.find_elements(By.XPATH, "//td[@id='GradeDetail']//ul/li/a")
                 ######################################### 여기가 조건 주는거야
-                print("여기가 조건 주는거야 18")
+                print("여기가 조건 주는거야 13까쥐")
                 #######################################
                 for link in links:
-                    if not int(link.text[:3]) >12 :
+                    if not int(link.text[:3]) ==6 :
                         continue
                     print(f"클릭할 링크: {link.text}")
 
                     driver.execute_script("arguments[0].click();", link)  # JavaScript로 클릭
-                    time.sleep(0.5)  # 각 클릭 간에 대기 시간 추가 (필요 시 조정)
+                    time.sleep(0.1)  # 각 클릭 간에 대기 시간 추가 (필요 시 조정)
                     # `ifrmSeatDetail`로 전환
                     iframe = WebDriverWait(driver, 10).until(
                         EC.presence_of_element_located((By.ID, "ifrmSeatDetail"))
@@ -600,8 +601,13 @@ while True:
                         
                         # 카톡결제 클릭
                         # '카톡결제' 버튼 찾기
+                        time.sleep(3)
+                        # kakaotalk_btn = WebDriverWait(driver, 10).until(
+                        #     EC.presence_of_element_located((By.XPATH, "//div[@class='kp-m-tab-header-item' and @id='카톡결제']"))
+                        # )
+                        # kakaotalk_btn.click()
                         kakaotalk_btn = WebDriverWait(driver, 10).until(
-                            EC.presence_of_element_located((By.XPATH, "//div[@class='kp-m-tab-header-item' and @id='카톡결제']"))
+                            EC.element_to_be_clickable((By.XPATH, "//div[@id='카톡결제' and contains(@class, 'kp-m-tab-header-item')]"))
                         )
                         kakaotalk_btn.click()
                         print("카톡결제 클릭 성공")
