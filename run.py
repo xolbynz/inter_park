@@ -20,6 +20,7 @@ from datetime import datetime
 import cv2 
 import numpy as np
 import time
+from datetime import datetime
 import pytesseract
 import threading
 wait_sec = 10
@@ -36,9 +37,9 @@ birth_date = input("인터파크 주민번호 앞에: ")
 # your_password=input("인터파크 비밀번호 틀리지마: ") 
 # 결제할 카카오톡 정보
 # 핸드폰 번호
-kakao_phone_number = input("핸드폰번호: ") 
+kakao_phone_number = input("까까오페이 핸드폰번호: ") 
 # 생년월일
-kakao_birth_date = input("까까오톡 주민번호 앞에: ") 
+kakao_birth_date = input("까까오페이 주민번호 앞에: ") 
 
 options = Options()
 options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
@@ -240,7 +241,7 @@ def book_Delivery_check():
         return False
 
 # 로그인 페이지 열기
-driver.get('https://tickets.interpark.com/goods/24013437?GoodsCode=24013437')
+# driver.get('https://tickets.interpark.com/goods/24013437?GoodsCode=24013437')
 # driver.get('https://tickets.interpark.com/goods/24017510')
 # https://tickets.interpark.com/goods/24017510
 # 사용자가 직접 로그인
@@ -278,12 +279,12 @@ driver.get('https://tickets.interpark.com/goods/24013437?GoodsCode=24013437')
 # except Exception as e:
 #     print("버튼 클릭 실패:", e)
 
-time.sleep(5)
+# time.sleep(5)
 
 ############################
 print("여기서 로그인 한번만 하자~~~ 브레이크 걸어")
     # 3. 아이디 입력
-time.sleep(5)
+# time.sleep(5)
 # username_input = driver.find_element(By.NAME, "username")  # "username"은 input의 name 속성
 # username_input.send_keys(your_username)  # 여기에 실제 아이디 입력
 # time.sleep(1)
@@ -313,6 +314,7 @@ except Exception as e:
 ## 좌석 선택 창
 # 새 창 전환하기
 # 새 창이나 탭이 열릴 때까지 기다림
+time.sleep(5)
 WebDriverWait(driver, 30).until(lambda d: len(d.window_handles) > 1)
 window_handles = driver.window_handles
 driver.switch_to.window(window_handles[1])
@@ -330,8 +332,11 @@ while True:
         # iframe으로 전환
         # 나올 때까지 기다리기
         # # 새 창이나 탭의 로딩을 기다림
+        # driver.maximize_window()
+        driver.set_window_size(1000, 800) 
+        # driver.set_window_position(-2000, 0)  # 화면 왼쪽 바깥으로 이동
         # WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, "ifrmSeat")))
+        WebDriverWait(driver, 1000).until(EC.presence_of_element_located((By.ID, "ifrmSeat")))
         iframe_seat = driver.find_element(By.ID, "ifrmSeat")
         driver.switch_to.frame(iframe_seat)
 
@@ -341,7 +346,7 @@ while True:
         chapcha()
         puzzle()
 
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, "PlayDate")))
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "PlayDate")))
         # driver.execute_script("document.getElementById('PlayDate').value = '20231231';")
         # driver.execute_script("document.getElementById('PlayDate').value = "+data_str+";")
         # time.sleep(1)
@@ -391,10 +396,10 @@ while True:
                 # 링크들 가져오기
                 links = driver.find_elements(By.XPATH, "//td[@id='GradeDetail']//ul/li/a")
                 ######################################### 여기가 조건 주는거야
-                print("여기가 조건 주는거야 18,19,23")
+                print("여기가 조건 주는거야 18")
                 #######################################
                 for link in links:
-                    if not int(link.text[:3]) in [18,19,24]:
+                    if not int(link.text[:3]) >12 :
                         continue
                     print(f"클릭할 링크: {link.text}")
 
@@ -626,8 +631,9 @@ while True:
                         )
                         time.sleep(3)
                         pay_request_btn.click()
-                        print("결제요청 버튼 클릭 성공")
-                        time.sleep(1000)
+                        now = datetime.now()
+                        print(now,"결제요청 버튼 클릭 성공")
+                        time.sleep(3600)
             else:
                 print("스탠딩만 할거지??")
         driver.refresh()
