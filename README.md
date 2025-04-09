@@ -24,7 +24,7 @@ C:\Program Files\Tesseract-OCR\tesseract.exe
 ---
 
 
-
+우선 크롬을 실행하고 해야함
 ```
 Start-Process "C:\Program Files\Google\Chrome\Application\chrome.exe" -ArgumentList "--remote-debugging-port=9222", "--user-data-dir=C:\chrome_tmp"
 ```

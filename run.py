@@ -333,20 +333,21 @@ while True:
         # 나올 때까지 기다리기
         # # 새 창이나 탭의 로딩을 기다림
         # driver.maximize_window()
+        print("set window")
         driver.set_window_size(1000, 800) 
         # driver.set_window_position(-2000, 0)  # 화면 왼쪽 바깥으로 이동
         # WebDriverWait(driver, wait_sec).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
         WebDriverWait(driver, 1000).until(EC.presence_of_element_located((By.ID, "ifrmSeat")))
         iframe_seat = driver.find_element(By.ID, "ifrmSeat")
         driver.switch_to.frame(iframe_seat)
-
+        print("iframe_seat switch")
     #     # 보안문자 넘어가기
     #     # display: none; 검사
         
         chapcha()
         puzzle()
 
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "PlayDate")))
+        WebDriverWait(driver, 1).until(EC.presence_of_element_located((By.ID, "PlayDate")))
         # driver.execute_script("document.getElementById('PlayDate').value = '20231231';")
         # driver.execute_script("document.getElementById('PlayDate').value = "+data_str+";")
         # time.sleep(1)
@@ -385,19 +386,21 @@ while True:
                 # "스탠딩석" 요소 클릭
                 time.sleep(0.1)  # 자바스크립트로 DOM 변경 시작할 시간을 줌
                 seat_grade.click()
-                print(f"클릭한 요소: {seat_grade.text}")
+                grade_detail = driver.find_element(By.ID, "GradeDetail")
+                style = grade_detail.get_attribute("style")
+                print(f"클릭한 요소: {seat_grade.text} ,{style}")
                 time.sleep(0.1)
                 # is_have_seat = True
                 # 스탠딩석 클릭 후 링크들 로드 대기
                 # 스탠딩석 클릭 후 상세 링크들이 모두 로드될 때까지 기다리기
-                wait = WebDriverWait(driver, 10)
+                wait = WebDriverWait(driver, 1)
                 wait.until(EC.visibility_of_element_located((By.XPATH, "//td[@id='GradeDetail']//ul/li/a")))
                 wait.until(EC.element_to_be_clickable((By.XPATH, "//td[@id='GradeDetail']//ul/li/a")))
 
                 # 링크들 가져오기
                 links = driver.find_elements(By.XPATH, "//td[@id='GradeDetail']//ul/li/a")
                 ######################################### 여기가 조건 주는거야
-                print("여기가 조건 주는거야 13까쥐")
+                print("여기가 조건 주는거야 6만 먹자")
                 #######################################
                 for link in links:
                     if not int(link.text[:3]) ==6 :
