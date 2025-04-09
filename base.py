@@ -34,9 +34,9 @@ birth_date = ""
 
 # 결제할 카카오톡 정보
 # 핸드폰 번호
-kakao_phone_number = "01048425162"
+kakao_phone_number = ""
 # 생년월일
-kakao_birth_date = "19941122"
+kakao_birth_date = ""
 
 options = Options()
 options.add_argument('--disable-cache')  # 캐시 비활성화
