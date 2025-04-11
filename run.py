@@ -26,7 +26,7 @@ import threading
 wait_sec = 10
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-puzzle_path="ts.jpg"
+puzzle_path="oasis.jpg"
 # 예매할 자리 수 (최대 2매)
 wanted_seats_count = 1
 
@@ -320,7 +320,7 @@ window_handles = driver.window_handles
 driver.switch_to.window(window_handles[1])
 
 
-datelist=['20251025']
+datelist=['20251021']
 # datelist=['20250125','20250126']
 # find_seat = False
 capcha_check=True
@@ -379,7 +379,8 @@ while True:
         is_have_seat=False
         for seat_grade in seat_grades:
             text = seat_grade.text
-            if  "스탠딩" in text:
+            if  True:
+            # if  "스탠딩" in text:
             # if text == "지정석":
                 actions = ActionChains(driver)
                 actions.move_to_element(seat_grade).perform()
