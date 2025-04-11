@@ -26,7 +26,7 @@ import threading
 wait_sec = 10
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-puzzle_path="cp.jpg"
+puzzle_path="ts.jpg"
 # 예매할 자리 수 (최대 2매)
 wanted_seats_count = 1
 
@@ -320,7 +320,7 @@ window_handles = driver.window_handles
 driver.switch_to.window(window_handles[1])
 
 
-datelist=['20250419']
+datelist=['20251025']
 # datelist=['20250125','20250126']
 # find_seat = False
 capcha_check=True
@@ -369,7 +369,7 @@ while True:
         # else :
         #     # select_element.select_by_value("001")  
         #     select_element.select_by_value("003")  
-        select_element.select_by_value("003")  
+        select_element.select_by_value("001")  
         WebDriverWait(driver, 80).until(
             EC.presence_of_all_elements_located((By.XPATH, "//tr[@id='GradeRow']/td/div/span[@class='select']"))
         )
@@ -379,7 +379,7 @@ while True:
         is_have_seat=False
         for seat_grade in seat_grades:
             text = seat_grade.text
-            if text == "스탠딩석":
+            if  "스탠딩" in text:
             # if text == "지정석":
                 actions = ActionChains(driver)
                 actions.move_to_element(seat_grade).perform()
@@ -393,17 +393,26 @@ while True:
                 # is_have_seat = True
                 # 스탠딩석 클릭 후 링크들 로드 대기
                 # 스탠딩석 클릭 후 상세 링크들이 모두 로드될 때까지 기다리기
-                wait = WebDriverWait(driver, 1)
-                wait.until(EC.visibility_of_element_located((By.XPATH, "//td[@id='GradeDetail']//ul/li/a")))
-                wait.until(EC.element_to_be_clickable((By.XPATH, "//td[@id='GradeDetail']//ul/li/a")))
+                # wait = WebDriverWait(driver, 1)
+                # wait.until(EC.visibility_of_element_located((By.XPATH, "//td[@id='GradeDetail']//ul/li/a")))
+                # wait.until(EC.element_to_be_clickable((By.XPATH, "//td[@id='GradeDetail']//ul/li/a")))
+                # links = driver.find_elements(By.XPATH, "//td[@id='GradeDetail']//ul/li/a")
 
-                # 링크들 가져오기
-                links = driver.find_elements(By.XPATH, "//td[@id='GradeDetail']//ul/li/a")
+                xpath = "//td[@id='GradeDetail' and not(contains(@style, 'display: none'))]//ul/li/a"
+                wait = WebDriverWait(driver, 10)
+
+                # 요소가 화면에 보일 때까지 대기
+                wait.until(EC.visibility_of_element_located((By.XPATH, xpath)))
+                # 요소가 클릭 가능할 때까지 대기
+                wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+
+                # 이후 보이는 GradeDetail 블록 내의 모든 a 태그 수집
+                links = driver.find_elements(By.XPATH, xpath)
                 ######################################### 여기가 조건 주는거야
-                print("여기가 조건 주는거야 6만 먹자")
+                print("여기가 조건 주는거야 50만원짜리는 빡셈")
                 #######################################
                 for link in links:
-                    if not int(link.text[:3]) ==6 :
+                    if  int(link.text[:3]) in [1,4] :
                         continue
                     print(f"클릭할 링크: {link.text}")
 
@@ -604,7 +613,7 @@ while True:
                         
                         # 카톡결제 클릭
                         # '카톡결제' 버튼 찾기
-                        time.sleep(3)
+                        # time.sleep(3)
                         # kakaotalk_btn = WebDriverWait(driver, 10).until(
                         #     EC.presence_of_element_located((By.XPATH, "//div[@class='kp-m-tab-header-item' and @id='카톡결제']"))
                         # )
@@ -613,7 +622,7 @@ while True:
                             EC.element_to_be_clickable((By.XPATH, "//div[@id='카톡결제' and contains(@class, 'kp-m-tab-header-item')]"))
                         )
                         kakaotalk_btn.click()
-                        print("카톡결제 클릭 성공")
+                        print("카톡결제9 클릭 성공")
 
                         phone_input = WebDriverWait(driver, wait_sec).until(
                             EC.presence_of_element_located((By.NAME, "phoneNumber"))
@@ -633,12 +642,12 @@ while True:
                         # <button class="button-request btn_payask on">결제요청</button>
                         # 결제요청 클릭
                         # "결제요청" 버튼을 대기하고 클릭
-                        print(link.text)
-                        time.sleep(15)
+                        # print(link.text)
+                        # time.sleep(15)
                         pay_request_btn = WebDriverWait(driver, wait_sec).until(
                             EC.element_to_be_clickable((By.XPATH, "//button[contains(@class, 'kp-m-button') and contains(., '결제요청')]"))
                         )
-                        time.sleep(3)
+                        # time.sleep(3)
                         pay_request_btn.click()
                         now = datetime.now()
                         print(now,"결제요청 버튼 클릭 성공")
